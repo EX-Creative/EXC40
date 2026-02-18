@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>EXC40 - Sky Incursion</title>
+    <title>EXC40</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -24,7 +24,6 @@
         position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
         z-index: 100; display: none; background: rgba(0, 255, 204, 0.2);
       }
-      /* Scanning Line Effect */
       #scan-line {
         position: fixed; width: 100%; height: 2px; background: rgba(0, 255, 204, 0.5);
         box-shadow: 0 0 10px #00ffcc; top: 0; z-index: 90; display: none;
@@ -53,7 +52,8 @@
     </div>
 
     <div id="overlay">
-      <h1 style="letter-spacing: 5px;">INSIGNIA DETECTED</h1>
+      <h1 style="letter-spacing: 5px;">EXCLUSIVE ADVERTISING</h1>
+      <p style="font-size: 0.8rem;">40TH ANNIVERSARY RADAR ACTIVE</p>
       <button class="btn" onclick="startExperience()">INITIATE SCAN</button>
     </div>
 
@@ -75,21 +75,30 @@
       <a-image 
         id="mothership"
         src="#logo" 
-        position="0 180 -100" 
-        scale="50 50 50" 
+        position="0 150 -150" 
+        scale="35 35 35" 
         look-at="[camera]"
-        animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 25000; easing: linear"
+        animation__rotate="property: rotation; to: 0 0 360; loop: true; dur: 20000; easing: linear"
         animation__pulse="property: material.opacity; from: 0.7; to: 1; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine">
+        
+        <a-text 
+          value="40 YEARS" 
+          color="#00ffcc" 
+          align="center" 
+          position="0 -1.2 0.1" 
+          width="10" 
+          font="monoid"
+          animation__flicker="property: opacity; from: 0.4; to: 1; dir: alternate; dur: 500; loop: true">
+        </a-text>
       </a-image>
 
       <a-entity sound="src: #hum; loop: true; volume: 1" id="audioContainer"></a-entity>
-      
-      <a-camera rotation-reader look-controls="pointerLockEnabled: true"></a-camera>
+      <a-camera rotation-reader look-controls></a-camera>
     </a-scene>
 
     <script>
       let altitude = 5000;
-      const targetAlt = 3500;
+      const targetAlt = 1200;
 
       function startExperience() {
         document.getElementById('overlay').style.display = 'none';
@@ -100,7 +109,6 @@
         const audio = document.querySelector('#audioContainer');
         audio.components.sound.playSound();
         
-        // Request Permissions (Crucial for visibility!)
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
           DeviceOrientationEvent.requestPermission().catch(console.error);
         }
@@ -127,7 +135,7 @@
         const canvas = scene.components.screenshot.getCanvas('perspective');
         const dataURL = canvas.toDataURL("image/png");
         const link = document.createElement('a');
-        link.download = 'EXC40-Invasion.png';
+        link.download = 'EXC40-Anniversary.png';
         link.href = dataURL;
         link.click();
       }
