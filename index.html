@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>EXC40 - Low Altitude Incursion</title>
+    <title>EXC40 - Sky Incursion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -37,9 +37,9 @@
 
   <body style="margin: 0; overflow: hidden;">
     <div id="hud">
-      <div class="flicker">● TARGET LOCKED</div>
+      <div class="flicker">● SIGNAL ACQUIRED</div>
       <div>LOC: GUWAHATI, AS</div>
-      <div>ALT: 1,500m (LOW ALT)</div>
+      <div id="alt-display">ALT: 5,000m</div>
       <div id="coords">LAT: 26.1445 / LONG: 91.7362</div>
     </div>
 
@@ -66,8 +66,8 @@
       <a-image 
         id="mothership"
         src="#logo" 
-        position="0 60 -120" 
-        scale="110 110 110" 
+        position="0 120 -300" 
+        scale="200 200 200" 
         look-at="[camera]"
         animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 25000; easing: linear"
         animation__pulse="property: material.opacity; from: 0.7; to: 1; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine">
@@ -78,6 +78,9 @@
     </a-scene>
 
     <script>
+      let altitude = 5000;
+      const targetAlt = 1500;
+
       function startExperience() {
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('hud').style.display = 'block';
@@ -86,6 +89,20 @@
         const audio = document.querySelector('#audioContainer');
         audio.components.sound.playSound();
         
+        // Altitude Countdown Effect
+        const altInterval = setInterval(() => {
+          if (altitude > targetAlt) {
+            altitude -= Math.floor(Math.random() * 150) + 50;
+            if (altitude < targetAlt) altitude = targetAlt;
+            document.getElementById('alt-display').innerText = `ALT: ${altitude.toLocaleString()}m`;
+          } else {
+            document.getElementById('alt-display').classList.add('flicker');
+            document.getElementById('alt-display').innerText = `ALT: ${targetAlt}m (STABLE)`;
+            clearInterval(altInterval);
+          }
+        }, 80);
+
+        // Guwahati Coordinate Jitter
         setInterval(() => {
           const lat = (26.1445 + (Math.random() - 0.5) * 0.001).toFixed(4);
           const long = (91.7362 + (Math.random() - 0.5) * 0.001).toFixed(4);
