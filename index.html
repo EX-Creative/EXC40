@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>EXC40 - High Altitude Incursion</title>
+    <title>EXC40 - Sky Incursion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -24,6 +24,14 @@
         position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
         z-index: 100; display: none; background: rgba(0, 255, 204, 0.2);
       }
+      /* Scanning Line Effect */
+      #scan-line {
+        position: fixed; width: 100%; height: 2px; background: rgba(0, 255, 204, 0.5);
+        box-shadow: 0 0 10px #00ffcc; top: 0; z-index: 90; display: none;
+        animation: scan 4s linear infinite; pointer-events: none;
+      }
+      @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
       #hud {
         position: fixed; top: 20px; left: 20px; color: #00ffcc;
         font-family: 'Courier New', Courier, monospace; font-size: 12px;
@@ -36,15 +44,16 @@
   </head>
 
   <body style="margin: 0; overflow: hidden;">
+    <div id="scan-line"></div>
     <div id="hud">
-      <div class="flicker">● SIGNAL ACQUIRED</div>
+      <div class="flicker">● SYSTEM ACTIVE</div>
       <div>LOC: GUWAHATI, AS</div>
       <div id="alt-display">ALT: 5,000m</div>
       <div id="coords">LAT: 26.1445 / LONG: 91.7362</div>
     </div>
 
     <div id="overlay">
-      <h1 style="letter-spacing: 5px;">INCURSION DETECTED</h1>
+      <h1 style="letter-spacing: 5px;">INSIGNIA DETECTED</h1>
       <button class="btn" onclick="startExperience()">INITIATE SCAN</button>
     </div>
 
@@ -66,15 +75,16 @@
       <a-image 
         id="mothership"
         src="#logo" 
-        position="0 250 -100" 
-        scale="60 60 60" 
+        position="0 180 -100" 
+        scale="50 50 50" 
         look-at="[camera]"
         animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 25000; easing: linear"
         animation__pulse="property: material.opacity; from: 0.7; to: 1; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine">
       </a-image>
 
       <a-entity sound="src: #hum; loop: true; volume: 1" id="audioContainer"></a-entity>
-      <a-camera gps-camera rotation-reader></a-camera>
+      
+      <a-camera rotation-reader look-controls="pointerLockEnabled: true"></a-camera>
     </a-scene>
 
     <script>
@@ -85,17 +95,21 @@
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('hud').style.display = 'block';
         document.getElementById('capture-btn').style.display = 'block';
+        document.getElementById('scan-line').style.display = 'block';
         
         const audio = document.querySelector('#audioContainer');
         audio.components.sound.playSound();
         
+        // Request Permissions (Crucial for visibility!)
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission().catch(console.error);
+        }
+
         const altInterval = setInterval(() => {
           if (altitude > targetAlt) {
             altitude -= Math.floor(Math.random() * 150) + 50;
-            if (altitude < targetAlt) altitude = targetAlt;
             document.getElementById('alt-display').innerText = `ALT: ${altitude.toLocaleString()}m`;
           } else {
-            document.getElementById('alt-display').classList.add('flicker');
             document.getElementById('alt-display').innerText = `ALT: ${targetAlt}m (LOCKED)`;
             clearInterval(altInterval);
           }
@@ -106,10 +120,6 @@
           const long = (91.7362 + (Math.random() - 0.5) * 0.001).toFixed(4);
           document.getElementById('coords').innerText = `LAT: ${lat} / LONG: ${long}`;
         }, 1500);
-
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-          DeviceOrientationEvent.requestPermission();
-        }
       }
 
       function takeSnapshot() {
