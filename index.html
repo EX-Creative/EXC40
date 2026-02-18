@@ -20,10 +20,6 @@
         cursor: pointer; font-weight: bold; text-transform: uppercase;
         font-family: 'Courier New', Courier, monospace;
       }
-      #capture-btn {
-        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-        z-index: 100; display: none; background: rgba(0, 255, 204, 0.2);
-      }
       #scan-line {
         position: fixed; width: 100%; height: 2px; background: rgba(0, 255, 204, 0.5);
         box-shadow: 0 0 10px #00ffcc; top: 0; z-index: 90; display: none;
@@ -57,12 +53,10 @@
       <button class="btn" onclick="startExperience()">INITIATE SCAN</button>
     </div>
 
-    <button id="capture-btn" class="btn" onclick="takeSnapshot()">CAPTURE DATA</button>
-
     <a-scene 
       vr-mode-ui="enabled: false"
       embedded
-      arjs="sourceType: webcam; debugUIEnabled: false; preserveDrawingBuffer: true;">
+      arjs="sourceType: webcam; debugUIEnabled: false;">
       
       <a-assets>
         <img id="logo" src="EXC_40Y_Insignia_borderless.png">
@@ -72,25 +66,36 @@
       <a-entity light="type: ambient; color: #445566; intensity: 1.5"></a-entity>
       <a-entity light="type: directional; color: #00ffcc; intensity: 0.8" position="-1 5 1"></a-entity>
 
-      <a-image 
-        id="mothership"
-        src="#logo" 
-        position="0 150 -150" 
-        scale="35 35 35" 
-        look-at="[camera]"
-        animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 25000; easing: linear"
-        animation__pulse="property: material.opacity; from: 0.7; to: 1; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine">
+      <a-entity id="ufo-container" position="0 150 -150" look-at="[camera]">
         
-        <a-text 
-          value="40 YEARS" 
-          color="#00ffcc" 
-          align="center" 
-          position="0 -1.2 0.1" 
-          width="10" 
-          font="monoid"
-          animation__flicker="property: opacity; from: 0.4; to: 1; dir: alternate; dur: 500; loop: true">
-        </a-text>
-      </a-image>
+        <a-ring color="#00ffcc" radius-inner="18" radius-outer="18.5" opacity="0.6" rotation="0 0 0"
+                animation="property: scale; from: 1 1 1; to: 2.5 2.5 2.5; dur: 2000; loop: true; easing: easeOutQuad"
+                animation__fade="property: opacity; from: 0.6; to: 0; dur: 2000; loop: true; easing: easeOutQuad">
+        </a-ring>
+        <a-ring color="#00ffcc" radius-inner="18" radius-outer="18.5" opacity="0.6" rotation="0 0 0"
+                animation="property: scale; from: 1 1 1; to: 2.5 2.5 2.5; dur: 2000; delay: 1000; loop: true; easing: easeOutQuad"
+                animation__fade="property: opacity; from: 0.6; to: 0; dur: 2000; delay: 1000; loop: true; easing: easeOutQuad">
+        </a-ring>
+
+        <a-image 
+          id="mothership"
+          src="#logo" 
+          scale="35 35 35" 
+          animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 25000; easing: linear"
+          animation__pulse="property: material.opacity; from: 0.8; to: 1; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine">
+        </a-image>
+
+        <a-entity animation="property: rotation; to: 0 0 -360; loop: true; dur: 10000; easing: linear">
+            <a-text value="40 YEARS • 40 YEARS • 40 YEARS" 
+                    color="#00ffcc" 
+                    align="center" 
+                    position="0 25 0" 
+                    width="60" 
+                    font="monoid"
+                    opacity="0.8">
+            </a-text>
+        </a-entity>
+      </a-entity>
 
       <a-entity sound="src: #hum; loop: true; volume: 1" id="audioContainer"></a-entity>
       <a-camera rotation-reader look-controls></a-camera>
@@ -103,7 +108,6 @@
       function startExperience() {
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('hud').style.display = 'block';
-        document.getElementById('capture-btn').style.display = 'block';
         document.getElementById('scan-line').style.display = 'block';
         
         const audio = document.querySelector('#audioContainer');
@@ -128,16 +132,6 @@
           const long = (91.7362 + (Math.random() - 0.5) * 0.001).toFixed(4);
           document.getElementById('coords').innerText = `LAT: ${lat} / LONG: ${long}`;
         }, 1500);
-      }
-
-      function takeSnapshot() {
-        const scene = document.querySelector('a-scene');
-        const canvas = scene.components.screenshot.getCanvas('perspective');
-        const dataURL = canvas.toDataURL("image/png");
-        const link = document.createElement('a');
-        link.download = 'EXC40-Anniversary.png';
-        link.href = dataURL;
-        link.click();
       }
     </script>
   </body>
