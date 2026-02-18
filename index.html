@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>EXC40 - Sky Invasion</title>
+    <title>EXC40 - Low Altitude Incursion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -10,22 +10,25 @@
     <style>
       #overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); color: #00ffcc; display: flex;
+        background: rgba(0,0,0,0.95); color: #00ffcc; display: flex;
         flex-direction: column; align-items: center; justify-content: center;
         z-index: 9999; font-family: 'Courier New', Courier, monospace; text-align: center;
       }
-      button {
-        padding: 15px 40px; font-size: 1.2rem; background: transparent; 
+      .btn {
+        padding: 15px 30px; font-size: 1rem; background: transparent; 
         color: #00ffcc; border: 2px solid #00ffcc; border-radius: 5px; 
-        cursor: pointer; margin-top: 20px; font-weight: bold; text-transform: uppercase;
+        cursor: pointer; font-weight: bold; text-transform: uppercase;
+        font-family: 'Courier New', Courier, monospace;
       }
-      button:active { background: rgba(0, 255, 204, 0.2); }
-      
+      #capture-btn {
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        z-index: 100; display: none; background: rgba(0, 255, 204, 0.2);
+      }
       #hud {
         position: fixed; top: 20px; left: 20px; color: #00ffcc;
-        font-family: 'Courier New', Courier, monospace; font-size: 13px;
+        font-family: 'Courier New', Courier, monospace; font-size: 12px;
         text-shadow: 0 0 5px #00ffcc; z-index: 100; display: none;
-        pointer-events: none; line-height: 1.5;
+        pointer-events: none;
       }
       .flicker { animation: blinker 1s linear infinite; }
       @keyframes blinker { 50% { opacity: 0.2; } }
@@ -34,23 +37,23 @@
 
   <body style="margin: 0; overflow: hidden;">
     <div id="hud">
-      <div class="flicker">● SIGNAL ACQUIRED</div>
+      <div class="flicker">● TARGET LOCKED</div>
       <div>LOC: GUWAHATI, AS</div>
-      <div>OBJ: EXC_MOTHER_SHIP</div>
+      <div>ALT: 1,500m (LOW ALT)</div>
       <div id="coords">LAT: 26.1445 / LONG: 91.7362</div>
-      <div style="margin-top:10px; font-size: 10px; opacity: 0.7;">THREAT LEVEL: ALPHA</div>
     </div>
 
     <div id="overlay">
       <h1 style="letter-spacing: 5px;">INCURSION DETECTED</h1>
-      <p>ESTABLISHING SECURE CONNECTION...</p>
-      <button onclick="startExperience()">INITIATE SCAN</button>
+      <button class="btn" onclick="startExperience()">INITIATE SCAN</button>
     </div>
+
+    <button id="capture-btn" class="btn" onclick="takeSnapshot()">CAPTURE DATA</button>
 
     <a-scene 
       vr-mode-ui="enabled: false"
       embedded
-      arjs="sourceType: webcam; debugUIEnabled: false;">
+      arjs="sourceType: webcam; debugUIEnabled: false; preserveDrawingBuffer: true;">
       
       <a-assets>
         <img id="logo" src="EXC_40Y_Insignia_borderless.png">
@@ -63,15 +66,14 @@
       <a-image 
         id="mothership"
         src="#logo" 
-        position="0 100 -250" 
-        scale="150 150 150" 
+        position="0 60 -120" 
+        scale="110 110 110" 
         look-at="[camera]"
-        animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 90000; easing: linear"
-        animation__pulse="property: material.opacity; from: 0.5; to: 1; dir: alternate; dur: 5000; loop: true; easing: easeInOutSine">
+        animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 25000; easing: linear"
+        animation__pulse="property: material.opacity; from: 0.7; to: 1; dir: alternate; dur: 3000; loop: true; easing: easeInOutSine">
       </a-image>
 
-      <a-entity sound="src: #hum; loop: true; volume: 1; poolSize: 1" id="audioContainer"></a-entity>
-
+      <a-entity sound="src: #hum; loop: true; volume: 1" id="audioContainer"></a-entity>
       <a-camera gps-camera rotation-reader></a-camera>
     </a-scene>
 
@@ -79,11 +81,11 @@
       function startExperience() {
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('hud').style.display = 'block';
+        document.getElementById('capture-btn').style.display = 'block';
         
         const audio = document.querySelector('#audioContainer');
         audio.components.sound.playSound();
         
-        // Jittering local coordinates for Guwahati
         setInterval(() => {
           const lat = (26.1445 + (Math.random() - 0.5) * 0.001).toFixed(4);
           const long = (91.7362 + (Math.random() - 0.5) * 0.001).toFixed(4);
@@ -93,6 +95,16 @@
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
           DeviceOrientationEvent.requestPermission();
         }
+      }
+
+      function takeSnapshot() {
+        const scene = document.querySelector('a-scene');
+        const canvas = scene.components.screenshot.getCanvas('perspective');
+        const dataURL = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.download = 'EXC40-Invasion.png';
+        link.href = dataURL;
+        link.click();
       }
     </script>
   </body>
