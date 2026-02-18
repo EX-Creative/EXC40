@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>EXC40</title>
+    <title>EXC40 - Sky Invasion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -10,22 +10,41 @@
     <style>
       #overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8); color: white; display: flex;
+        background: rgba(0,0,0,0.9); color: #00ffcc; display: flex;
         flex-direction: column; align-items: center; justify-content: center;
-        z-index: 9999; font-family: sans-serif; text-align: center;
+        z-index: 9999; font-family: 'Courier New', Courier, monospace; text-align: center;
       }
       button {
-        padding: 15px 30px; font-size: 1.2rem; background: #00ffcc; 
-        border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;
+        padding: 15px 40px; font-size: 1.2rem; background: transparent; 
+        color: #00ffcc; border: 2px solid #00ffcc; border-radius: 5px; 
+        cursor: pointer; margin-top: 20px; font-weight: bold; text-transform: uppercase;
       }
+      button:active { background: rgba(0, 255, 204, 0.2); }
+      
+      #hud {
+        position: fixed; top: 20px; left: 20px; color: #00ffcc;
+        font-family: 'Courier New', Courier, monospace; font-size: 13px;
+        text-shadow: 0 0 5px #00ffcc; z-index: 100; display: none;
+        pointer-events: none; line-height: 1.5;
+      }
+      .flicker { animation: blinker 1s linear infinite; }
+      @keyframes blinker { 50% { opacity: 0.2; } }
     </style>
   </head>
 
   <body style="margin: 0; overflow: hidden;">
+    <div id="hud">
+      <div class="flicker">● SIGNAL ACQUIRED</div>
+      <div>LOC: GUWAHATI, AS</div>
+      <div>OBJ: EXC_MOTHER_SHIP</div>
+      <div id="coords">LAT: 26.1445 / LONG: 91.7362</div>
+      <div style="margin-top:10px; font-size: 10px; opacity: 0.7;">THREAT LEVEL: ALPHA</div>
+    </div>
+
     <div id="overlay">
-      <h1>SKY INVASION</h1>
-      <p>Grant camera and motion permissions to begin.</p>
-      <button onclick="startExperience()">INITIALIZE</button>
+      <h1 style="letter-spacing: 5px;">INCURSION DETECTED</h1>
+      <p>ESTABLISHING SECURE CONNECTION...</p>
+      <button onclick="startExperience()">INITIATE SCAN</button>
     </div>
 
     <a-scene 
@@ -44,11 +63,11 @@
       <a-image 
         id="mothership"
         src="#logo" 
-        position="0 80 -150" 
-        scale="180 180 180" 
+        position="0 100 -250" 
+        scale="150 150 150" 
         look-at="[camera]"
-        animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 80000; easing: linear"
-        animation__pulse="property: material.opacity; from: 0.6; to: 1; dir: alternate; dur: 4000; loop: true; easing: easeInOutSine">
+        animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 90000; easing: linear"
+        animation__pulse="property: material.opacity; from: 0.5; to: 1; dir: alternate; dur: 5000; loop: true; easing: easeInOutSine">
       </a-image>
 
       <a-entity sound="src: #hum; loop: true; volume: 1; poolSize: 1" id="audioContainer"></a-entity>
@@ -58,18 +77,23 @@
 
     <script>
       function startExperience() {
-        // Hide the overlay
         document.getElementById('overlay').style.display = 'none';
+        document.getElementById('hud').style.display = 'block';
         
-        // Start the audio hum
         const audio = document.querySelector('#audioContainer');
         audio.components.sound.playSound();
         
-        // Request DeviceOrientation permissions (Required for iOS 13+)
+        // Jittering local coordinates for Guwahati
+        setInterval(() => {
+          const lat = (26.1445 + (Math.random() - 0.5) * 0.001).toFixed(4);
+          const long = (91.7362 + (Math.random() - 0.5) * 0.001).toFixed(4);
+          document.getElementById('coords').innerText = `LAT: ${lat} / LONG: ${long}`;
+        }, 1500);
+
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
           DeviceOrientationEvent.requestPermission();
         }
       }
     </script>
   </body>
-</html><h1>Hello World!</h1>
+</html>
